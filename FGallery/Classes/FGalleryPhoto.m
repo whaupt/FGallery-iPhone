@@ -189,7 +189,7 @@ enum {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
     NSAssert(![NSThread isMainThread], @"can't be called on the main thread due to ALAssetLibrary limitations");
-    readLock = [[NSConditionLock alloc] initWithCondition:WDASSETURL_PENDINGREADS];
+    readLockFull = [[NSConditionLock alloc] initWithCondition:WDASSETURL_PENDINGREADS];
     
     ALAssetsLibraryAssetForURLResultBlock resultblock = ^(ALAsset *myasset)
     {
@@ -198,15 +198,15 @@ enum {
         if (iref) {
             _fullsize = [[UIImage imageWithCGImage:iref] retain];
         }
-        [readLock lock];
-        [readLock unlockWithCondition:WDASSETURL_ALLFINISHED];
+        [readLockFull lock];
+        [readLockFull unlockWithCondition:WDASSETURL_ALLFINISHED];
     };
 
     ALAssetsLibraryAccessFailureBlock failureblock  = ^(NSError *myerror)
     {
         NSLog(@"Error can't load fullsize image - %@",[myerror localizedDescription]);
-        [readLock lock];
-        [readLock unlockWithCondition:WDASSETURL_ALLFINISHED];
+        [readLockFull lock];
+        [readLockFull unlockWithCondition:WDASSETURL_ALLFINISHED];
     };
     
     NSURL *asseturl = [NSURL URLWithString:_fullsizeUrl];
@@ -215,11 +215,11 @@ enum {
                    resultBlock:resultblock
                   failureBlock:failureblock];
 	
-    [readLock lockWhenCondition:WDASSETURL_ALLFINISHED];
-    [readLock unlock];
+    [readLockFull lockWhenCondition:WDASSETURL_ALLFINISHED];
+    [readLockFull unlock];
     // cleanup
-    [readLock release];
-    readLock = nil;
+    [readLockFull release];
+    readLockFull = nil;
 
 	_hasFullsizeLoaded = YES;
 	_isFullsizeLoading = NO;
@@ -258,7 +258,7 @@ enum {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
     NSAssert(![NSThread isMainThread], @"can't be called on the main thread due to ALAssetLibrary limitations");
-    readLock = [[NSConditionLock alloc] initWithCondition:WDASSETURL_PENDINGREADS];
+    readLockThumb = [[NSConditionLock alloc] initWithCondition:WDASSETURL_PENDINGREADS];
     
     ALAssetsLibraryAssetForURLResultBlock resultblock = ^(ALAsset *myasset)
     {
@@ -266,14 +266,14 @@ enum {
         if (iref) {
             _thumbnail = [[UIImage imageWithCGImage:iref] retain];
         }
-        [readLock lock];
-        [readLock unlockWithCondition:WDASSETURL_ALLFINISHED];
+        [readLockThumb lock];
+        [readLockThumb unlockWithCondition:WDASSETURL_ALLFINISHED];
     };
     ALAssetsLibraryAccessFailureBlock failureblock  = ^(NSError *myerror)
     {
         NSLog(@"Error can't load thumbnail - %@",[myerror localizedDescription]);
-        [readLock lock];
-        [readLock unlockWithCondition:WDASSETURL_ALLFINISHED];
+        [readLockThumb lock];
+        [readLockThumb unlockWithCondition:WDASSETURL_ALLFINISHED];
     };
     
     NSURL *asseturl = [NSURL URLWithString:_thumbUrl];
@@ -282,11 +282,11 @@ enum {
                    resultBlock:resultblock
                   failureBlock:failureblock];
 	
-    [readLock lockWhenCondition:WDASSETURL_ALLFINISHED];
-    [readLock unlock];
+    [readLockThumb lockWhenCondition:WDASSETURL_ALLFINISHED];
+    [readLockThumb unlock];
     // cleanup
-    [readLock release];
-    readLock = nil;
+    [readLockThumb release];
+    readLockThumb = nil;
     
 	_hasThumbLoaded = YES;
 	_isThumbLoading = NO;

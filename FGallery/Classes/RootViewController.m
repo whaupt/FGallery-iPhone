@@ -192,6 +192,7 @@
 	}
     else if( indexPath.row == 3) {
         assetGallery = [[FGalleryViewController alloc] initWithPhotoSource:self];
+        [assetGallery setBeginsInThumbnailView:YES];
         [self.navigationController pushViewController:assetGallery animated:YES];
         [assetGallery release];
     }

@@ -1045,6 +1045,18 @@
 	}
 }
 
+- (void)galleryPhoto:(FGalleryPhoto*)photo willLoadThumbnailFromAsset:(NSString*)path
+{
+	// show activity indicator for large photo view
+	FGalleryPhotoView *photoView = [_photoViews objectAtIndex:photo.tag];
+	[photoView.activity startAnimating];
+	
+	// show activity indicator for thumbail
+	if( _isThumbViewShowing ) {
+		FGalleryPhotoView *thumb = [_photoThumbnailViews objectAtIndex:photo.tag];
+		[thumb.activity startAnimating];
+	}
+}
 
 - (void)galleryPhoto:(FGalleryPhoto*)photo willLoadThumbnailFromUrl:(NSString*)url
 {

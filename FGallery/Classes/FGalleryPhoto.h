@@ -37,7 +37,8 @@
 	UIImage *_thumbnail;
 	UIImage *_fullsize;
     
-    NSConditionLock* readLock;
+    NSConditionLock* readLockThumb;
+    NSConditionLock* readLockFull;
 
 	
 	NSObject <FGalleryPhotoDelegate> *_delegate;
